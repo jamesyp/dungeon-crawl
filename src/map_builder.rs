@@ -76,7 +76,7 @@ impl MapBuilder {
         use std::cmp::{min, max};
         for y in min(y1, y2) ..= max(y1, y2) {
             if let Some(idx) = self.map.try_idx(Point::new(x, y)) {
-                self.map.tiles[idx as usize] = TileType::Floor;
+                self.map.tiles[idx] = TileType::Floor;
             }
         }
     }
@@ -85,7 +85,7 @@ impl MapBuilder {
         use std::cmp::{min, max};
         for x in min(x1, x2) ..= max(x1, x2) {
             if let Some(idx) = self.map.try_idx(Point::new(x, y)) {
-                self.map.tiles[idx as usize] = TileType::Floor;
+                self.map.tiles[idx] = TileType::Floor;
             }
         }
     }
