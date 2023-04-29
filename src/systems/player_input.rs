@@ -21,10 +21,33 @@ pub fn player_input(
             _ => Point::zero(),
         };
 
-        players.iter_mut(ecs).for_each(|(entity, pos)| {
-            let destination = *pos + delta;
-            commands.push(((), WantsToMove { entity: *entity, destination }));
-        });
+        let (player_entity, destination) = players
+            .iter(ecs)
+            .map(|(entity, pos)| (*entity, *pos + delta))
+            .next()
+            .unwrap();
+
+        if delta.x != 0 || delta.y != 0 {
+            let mut enemies = <(Entity, &Point)>::query().filter(component::<Enemy>());
+            let mut hit_something = false;
+            enemies
+                .iter(ecs)
+                .filter(|(_, pos)| { **pos == destination })
+                .for_each(|(entity, _)| {
+                    hit_something = true;
+                    commands.push(((), WantsToAttack{
+                            attacker: player_entity,
+                            defender: *entity,
+                        }));
+                });
+
+            if !hit_something {
+                commands.push(((), WantsToMove {
+                        entity: player_entity,
+                        destination,
+                    }));
+            }
+        }
 
         *turn_state = TurnState::PlayerTurn;
     }
