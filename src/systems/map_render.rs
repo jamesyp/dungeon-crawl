@@ -18,9 +18,17 @@ pub fn map_render(
         for x in camera.left_x ..= camera.right_x {
             let point = Point::new(x, y);
             let offset = Point::new(camera.left_x, camera.top_y);
+            let idx = map_idx(x, y);
 
-            if map.in_bounds(point) && player_fov.visible_tiles.contains(&point) {
-                let idx = map_idx(x, y);
+            if map.in_bounds(point) &&
+                (player_fov.visible_tiles.contains(&point) | map.revealed_tiles[idx])
+            {
+                let tint = if player_fov.visible_tiles.contains(&point) {
+                    WHITE
+                } else {
+                    DARK_GRAY
+                };
+
                 let glyph = match map.tiles[idx] {
                     TileType::Floor => to_cp437('.'),
                     TileType::Wall => to_cp437('#'),
@@ -28,7 +36,7 @@ pub fn map_render(
 
                 draw_batch.set(
                     point - offset,
-                    ColorPair::new(WHITE, BLACK),
+                    ColorPair::new(tint, BLACK),
                     glyph
                 );
             }
