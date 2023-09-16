@@ -1,3 +1,4 @@
+#![allow(clippy::borrowed_box)]
 use crate::prelude::*;
 
 #[system]
@@ -6,6 +7,7 @@ use crate::prelude::*;
 pub fn map_render(
     ecs: &SubWorld,
     #[resource] map: &Map,
+    #[resource] theme: &Box<dyn MapTheme>,
     #[resource] camera: &Camera
 ) {
     let mut fov = <&FieldOfView>::query().filter(component::<Player>());
@@ -29,10 +31,7 @@ pub fn map_render(
                     DARK_GRAY
                 };
 
-                let glyph = match map.tiles[idx] {
-                    TileType::Floor => to_cp437('.'),
-                    TileType::Wall => to_cp437('#'),
-                };
+                let glyph = theme.tile_to_render(map.tiles[idx]);
 
                 draw_batch.set(
                     point - offset,
