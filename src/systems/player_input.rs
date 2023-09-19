@@ -21,8 +21,6 @@ pub fn player_input(
         .unwrap();
 
     if let Some(key) = key {
-        let mut did_something = false;
-
         let delta = match key {
             VirtualKeyCode::Left => Point::new(-1, 0),
             VirtualKeyCode::Right => Point::new(1, 0),
@@ -31,7 +29,6 @@ pub fn player_input(
             VirtualKeyCode::G => {
                 get_item(player, player_pos, ecs, commands);
 
-                did_something = true;
                 Point::zero()
             },
             VirtualKeyCode::Key1 => use_item(0, ecs, commands),
@@ -50,7 +47,6 @@ pub fn player_input(
         if delta.x != 0 || delta.y != 0 {
             let mut enemies = <(Entity, &Point)>::query().filter(component::<Enemy>());
             let mut hit_something = false;
-            did_something = true;
 
             enemies
                 .iter(ecs)
@@ -71,15 +67,6 @@ pub fn player_input(
             }
         }
 
-        if !did_something {
-            if let Ok(mut health) = ecs
-                .entry_mut(player)
-                .unwrap()
-                .get_component_mut::<Health>()
-            {
-                health.current = i32::min(health.max, health.current + 1);
-            }
-        }
         *turn_state = TurnState::PlayerTurn;
     }
 }
