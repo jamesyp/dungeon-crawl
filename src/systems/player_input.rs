@@ -13,21 +13,22 @@ pub fn player_input(
     #[resource] key: &Option<VirtualKeyCode>,
     #[resource] turn_state: &mut TurnState
 ) {
-    let mut players = <(Entity, &Point)>::query()
-        .filter(component::<Player>());
+    let (player, player_pos) = <(Entity, &Point)>::query()
+        .filter(component::<Player>())
+        .iter(ecs)
+        .map(|(entity, pos)| (*entity, *pos))
+        .next()
+        .unwrap();
 
     if let Some(key) = key {
+        let mut did_something = false;
+
         let delta = match key {
             VirtualKeyCode::Left => Point::new(-1, 0),
             VirtualKeyCode::Right => Point::new(1, 0),
             VirtualKeyCode::Up => Point::new(0, -1),
             VirtualKeyCode::Down => Point::new(0, 1),
             VirtualKeyCode::G => {
-                let (player, player_pos) = players
-                    .iter(ecs)
-                    .map(|(entity, pos)| (*entity, *pos))
-                    .next()
-                    .unwrap();
                 let mut items = <(Entity, &Item, &Point)>::query();
                 items.iter(ecs)
                     .filter(|(_entity, _item, &item_pos)| item_pos == player_pos)
@@ -36,19 +37,13 @@ pub fn player_input(
                         commands.add_component(*entity, Carried(player));
                     });
 
+                did_something = true;
                 Point::zero()
-
             },
             _ => Point::zero(),
         };
+        let destination  = player_pos + delta;
 
-        let (player_entity, destination) = players
-            .iter(ecs)
-            .map(|(entity, pos)| (*entity, *pos + delta))
-            .next()
-            .unwrap();
-
-        let mut did_something = false;
         if delta.x != 0 || delta.y != 0 {
             let mut enemies = <(Entity, &Point)>::query().filter(component::<Enemy>());
             let mut hit_something = false;
@@ -60,14 +55,14 @@ pub fn player_input(
                 .for_each(|(entity, _)| {
                     hit_something = true;
                     commands.push(((), WantsToAttack{
-                            attacker: player_entity,
+                            attacker: player,
                             defender: *entity,
                         }));
                 });
 
             if !hit_something {
                 commands.push(((), WantsToMove {
-                        entity: player_entity,
+                        entity: player,
                         destination,
                     }));
             }
@@ -75,7 +70,7 @@ pub fn player_input(
 
         if !did_something {
             if let Ok(mut health) = ecs
-                .entry_mut(player_entity)
+                .entry_mut(player)
                 .unwrap()
                 .get_component_mut::<Health>()
             {

@@ -44,6 +44,12 @@ pub struct Name(pub String);
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Item;
 
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct ActivateItem {
+    pub used_by: Entity,
+    pub item: Entity
+}
+
 #[derive(Clone, PartialEq)]
 pub struct Carried(pub Entity);
 
