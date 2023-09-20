@@ -26,7 +26,7 @@ pub fn player_input(
             VirtualKeyCode::Right => Point::new(1, 0),
             VirtualKeyCode::Up => Point::new(0, -1),
             VirtualKeyCode::Down => Point::new(0, 1),
-            VirtualKeyCode::G => {
+            VirtualKeyCode::E => {
                 get_item(player, player_pos, ecs, commands);
 
                 Point::zero()
