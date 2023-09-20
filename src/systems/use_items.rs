@@ -4,7 +4,8 @@ use legion::systems::CommandBuffer;
 #[system]
 #[read_component(ActivateItem)]
 #[read_component(ProvidesHealing)]
-#[read_component(Health)]
+#[read_component(Point)]
+#[write_component(Health)]
 #[read_component(ProvidesDungeonMap)]
 pub fn use_items(
     ecs: &mut SubWorld,
@@ -21,7 +22,25 @@ pub fn use_items(
                 healing_to_apply.push((activate.used_by, healing.amount));
             }
             if let Ok(_map_item) = item.get_component::<ProvidesDungeonMap>() {
-                map.revealed_tiles.iter_mut().for_each(|t| *t = true);
+                if let Ok(target) = ecs.entry_ref(activate.used_by) {
+                    if let Ok(point) = target.get_component::<Point>() {
+                        let tiles_to_reveal: Vec<(usize, f32)> = map.revealed_tiles
+                            .iter()
+                            .enumerate()
+                            .map(|(idx, _)| (
+                                idx,
+                                DistanceAlg::Pythagoras.distance2d(
+                                    *point, map.index_to_point2d(idx)
+                                )
+                            ))
+                            .filter(|(_, distance)| *distance < 16.0)
+                            .collect();
+
+                        tiles_to_reveal
+                            .iter()
+                            .for_each(|(idx, _)| map.revealed_tiles[*idx] = true);
+                    }
+                }
             }
         }
 
