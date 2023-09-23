@@ -95,7 +95,7 @@ impl Templates {
                     "Healing" => commands.add_component(
                         entity, ProvidesHealing{ amount: *n }),
                     "MagicMap" => commands.add_component(entity,
-                        ProvidesDungeonMap{}),
+                        ProvidesMagicMap { reveal_radius: *n }),
                     _ => {
                         println!("Warning: we don't know how to provide {}", provides);
                     }

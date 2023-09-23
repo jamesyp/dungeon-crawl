@@ -64,7 +64,9 @@ pub struct ProvidesHealing {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
-pub struct ProvidesDungeonMap;
+pub struct ProvidesMagicMap {
+    pub reveal_radius: i32
+}
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct FieldOfView {

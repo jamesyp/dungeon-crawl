@@ -6,7 +6,7 @@ use legion::systems::CommandBuffer;
 #[read_component(ProvidesHealing)]
 #[read_component(Point)]
 #[write_component(Health)]
-#[read_component(ProvidesDungeonMap)]
+#[read_component(ProvidesMagicMap)]
 pub fn use_items(
     ecs: &mut SubWorld,
     commands: &mut CommandBuffer,
@@ -21,26 +21,25 @@ pub fn use_items(
             if let Ok(healing) = item.get_component::<ProvidesHealing>() {
                 healing_to_apply.push((activate.used_by, healing.amount));
             }
-            if let Ok(_map_item) = item.get_component::<ProvidesDungeonMap>() {
-                if let Ok(target) = ecs.entry_ref(activate.used_by) {
-                    if let Ok(point) = target.get_component::<Point>() {
-                        let tiles_to_reveal: Vec<(usize, f32)> = map.revealed_tiles
-                            .iter()
-                            .enumerate()
-                            .map(|(idx, _)| (
-                                idx,
-                                DistanceAlg::Pythagoras.distance2d(
-                                    *point, map.index_to_point2d(idx)
-                                )
-                            ))
-                            .filter(|(_, distance)| *distance < 16.0)
-                            .collect();
+            if let Ok(magic_map) = item.get_component::<ProvidesMagicMap>() {
+                let used_by = ecs.entry_ref(activate.used_by).unwrap();
+                let point = used_by.get_component::<Point>().unwrap();
 
-                        tiles_to_reveal
-                            .iter()
-                            .for_each(|(idx, _)| map.revealed_tiles[*idx] = true);
-                    }
-                }
+                let tiles_to_reveal: Vec<(usize, f32)> = map.revealed_tiles
+                    .iter()
+                    .enumerate()
+                    .map(|(idx, _)| (
+                        idx,
+                        DistanceAlg::Pythagoras.distance2d(
+                            *point, map.index_to_point2d(idx)
+                        )
+                    ))
+                    .filter(|(_, distance)| *distance < magic_map.reveal_radius as f32)
+                    .collect();
+
+                tiles_to_reveal
+                    .iter()
+                    .for_each(|(idx, _)| map.revealed_tiles[*idx] = true);
             }
         }
 
