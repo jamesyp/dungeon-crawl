@@ -20,6 +20,14 @@ Templates(
             frequency: 1
         ),
 
+        // Weapons
+        Template(
+            entity_type: Item,
+            name: "Rusty Sword", glyph: '/', levels: [ 0, 1, 2 ],
+            frequency: 1,
+            base_damage: Some(1)
+        ),
+
         // Monsters
         Template(
             entity_type: Enemy,

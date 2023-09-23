@@ -14,6 +14,9 @@ pub struct Player {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Weapon;
+
+#[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Enemy;
 
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -39,6 +42,9 @@ pub struct Health {
     pub current: i32,
     pub max: i32
 }
+
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct Damage(pub i32);
 
 #[derive(Clone, PartialEq)]
 pub struct Name(pub String);
