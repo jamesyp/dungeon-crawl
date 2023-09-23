@@ -22,10 +22,10 @@ pub fn player_input(
 
     if let Some(key) = key {
         let delta = match key {
-            VirtualKeyCode::Left => Point::new(-1, 0),
-            VirtualKeyCode::Right => Point::new(1, 0),
-            VirtualKeyCode::Up => Point::new(0, -1),
-            VirtualKeyCode::Down => Point::new(0, 1),
+            VirtualKeyCode::Left | VirtualKeyCode::A => Point::new(-1, 0),
+            VirtualKeyCode::Right | VirtualKeyCode::D => Point::new(1, 0),
+            VirtualKeyCode::Up | VirtualKeyCode::W => Point::new(0, -1),
+            VirtualKeyCode::Down | VirtualKeyCode::S => Point::new(0, 1),
             VirtualKeyCode::E => {
                 get_item(player, player_pos, ecs, commands);
 
