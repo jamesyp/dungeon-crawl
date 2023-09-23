@@ -48,9 +48,7 @@ impl State {
         let exit_idx = map_builder.map.point2d_to_index(map_builder.amulet_start);
         map_builder.map.tiles[exit_idx] = TileType::Exit;
 
-        map_builder.monster_spawns
-            .iter()
-            .for_each(|pos| spawn_entity(&mut ecs, &mut rng, *pos));
+        spawn_level(&mut ecs, &mut rng, 0, &map_builder.monster_spawns);
 
         resources.insert(map_builder.map);
         resources.insert(map_builder.theme);
@@ -77,9 +75,7 @@ impl State {
         let exit_idx = map_builder.map.point2d_to_index(map_builder.amulet_start);
         map_builder.map.tiles[exit_idx] = TileType::Exit;
 
-        map_builder.monster_spawns
-            .iter()
-            .for_each(|pos| spawn_entity(&mut self.ecs, &mut rng, *pos));
+        spawn_level(&mut self.ecs, &mut rng, 0, &map_builder.monster_spawns);
 
         self.resources.insert(map_builder.map);
         self.resources.insert(map_builder.theme);
@@ -128,11 +124,10 @@ impl State {
             .for_each(|fov| fov.is_dirty = true);
 
         let mut rng = RandomNumberGenerator::new();
-        let map_builder = self.next_level_map(&mut rng);
+        let (map_builder, map_level) = self.next_level_map(&mut rng);
 
-        map_builder.monster_spawns
-            .iter()
-            .for_each(|pos| spawn_entity(&mut self.ecs, &mut rng, *pos));
+        spawn_level(&mut self.ecs, &mut rng, map_level, &map_builder.monster_spawns);
+
         self.resources.insert(map_builder.map);
         self.resources.insert(map_builder.theme);
         self.resources.insert(Camera::new(map_builder.player_start));
@@ -165,7 +160,7 @@ impl State {
         cb.flush(&mut self.ecs);
     }
 
-    fn next_level_map(&mut self, rng: &mut RandomNumberGenerator) -> MapBuilder {
+    fn next_level_map(&mut self, rng: &mut RandomNumberGenerator) -> (MapBuilder, usize) {
         let mut map_builder = MapBuilder::new(rng);
 
         let mut map_level = 0;
@@ -186,7 +181,7 @@ impl State {
             map_builder.map.tiles[exit_idx] = TileType::Exit;
         }
 
-        map_builder
+        (map_builder, map_level as usize)
     }
 }
 impl GameState for State {
